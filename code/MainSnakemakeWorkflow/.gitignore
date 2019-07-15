@@ -1,0 +1,4 @@
+*
+!Snakefile
+!snakemake.sbatch
+!.gitignore

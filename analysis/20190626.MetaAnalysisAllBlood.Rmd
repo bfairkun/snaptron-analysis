@@ -120,7 +120,7 @@ Ok try to get matched wildtype and mutants from same studies and balanced for ot
 ```{r}
 StudiesWithMutants <- ToPlot %>%
   filter(PC1<=-10 & PC2<=-20 & !is.na(study_ID)) %>%
-  select(study_ID) %>% distinct() %>% pull() %>% length()
+  select(study_ID) %>% distinct() %>% pull()
 
 ToPlot %>% filter(study_ID %in% StudiesWithMutants) %>%
 ggplot(aes(x=PC1, y=PC2, label=Combined.sf3b1)) + 
@@ -154,18 +154,18 @@ rbind(Cases, Controls) %>%
   
 ```
 
-Write out samples for new differential splicing contrast with leafcutter (groups file, junctions file)
+Write out samples for new differential splicing contrast with leafcutter (groups file, junctions file).
 
 ```{r}
-rbind(Cases, Controls) %>%
-  mutate(fullSampleName=paste0(".project2.yangili1.snaptron.processed_to_bedfiles.SRA2.", rail_id)) %>%
-  select(fullSampleName, Status) %>%
-  write.table("../data/other_snakemake_data/MostlyMarrowContrast.groups", sep='\t', quote=F, col.names = F, row.names = F)
-  
-rbind(Cases, Controls) %>%
-  mutate(fullSampleName=paste0("/project2/yangili1/snaptron/processed_to_bedfiles/SRA2/", rail_id, ".junc")) %>%
-  select(fullSampleName) %>%
-  write.table("../data/other_snakemake_data/MostlyMarrowContrast.juncfiles", sep='\t', quote=F, col.names = F, row.names = F)
+# rbind(Cases, Controls) %>%
+#   mutate(fullSampleName=paste0(".project2.yangili1.snaptron.processed_to_bedfiles.SRA2.", rail_id)) %>%
+#   select(fullSampleName, Status) %>%
+#   write.table("../data/other_snakemake_data/MostlyMarrowContrast.groups", sep='\t', quote=F, col.names = F, row.names = F)
+#   
+# rbind(Cases, Controls) %>%
+#   mutate(fullSampleName=paste0("/project2/yangili1/snaptron/processed_to_bedfiles/SRA2/", rail_id, ".junc")) %>%
+#   select(fullSampleName) %>%
+#   write.table("../data/other_snakemake_data/MostlyMarrowContrast.juncfiles", sep='\t', quote=F, col.names = F, row.names = F)
 ```
 
 

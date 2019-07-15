@@ -40,6 +40,10 @@ row.names(PSI_Table) <- gsub(":clu_.+", "", NumeratorCountTable$chrom)
 #Replace NaNs from 0/0 operation
 PSI_Table[is.na(PSI_Table)] <- 0
 
+Groups <- read.table("../data/other_snakemake_data/MostlyMarrowContrast.groups", stringsAsFactors = T)
+GroupLabels <- plyr::mapvalues(colnames(PSI_Table), from=Groups$V1, to=Groups$V2, warn_missing = FALSE)
+
+
 #read-leafcutter differntial splicing results
 effect.sizes <- read.table(gzfile("../output/snakemake_out_sf3b1_mostlymarrow/leafcutter.ds.effect_sizes.txt.gz"), header=T)
 
@@ -57,6 +61,26 @@ kable(head(leafcutter.merged))
 Ok now let's check that the leafcutter differential splicing results make sense. Some diagnositic plots:
 
 ```{r}
+
+#scatter plot of two samples
+ggplot(data=NULL, aes(x=PSI_Table[,1], y=,PSI_Table[,2])) + geom_point(alpha=0.05)
+ColSideColors=HeatmapGroupLabels
+
+#correlation matrix of all samples
+cor(PSI_Table, method="spearman") %>%
+  heatmap.2(dendrogram="column", trace="none", ColSideColors=GroupLabels)
+
+# how many junctions total for case and control
+data.frame(Sum=colSums(NumeratorCountTable[-1])) %>%
+  rownames_to_column() %>%
+  left_join(Groups, by=c("rowname"="V1")) %>%
+  ggplot(aes(x=V2, y=log10(Sum))) +
+    geom_boxplot(outlier.shape=NA) + #avoid plotting outliers twice
+    geom_jitter(position=position_jitter(width=.2, height=0)) +
+    theme_bw()
+  
+
+
 # how many clusters are there
 leafcutter.merged %>%
   distinct(cluster, .keep_all = T) %>% dim()
@@ -147,7 +171,6 @@ Top1000Introns <- leafcutter.merged %>%
   ungroup() %>%
   top_n(-1000, p) %>% pull(intron)
 
-Groups <- read.table("../data/other_snakemake_data/MostlyMarrowContrast.groups")
 
 
 #First make a heatmap of Darman et al junctions
@@ -155,42 +178,76 @@ Heatmap <- PSI_Table[DarmanJunctionsList$junc_id,] %>%
   t() %>% scale(scale=F) %>% t() %>%
   as.data.frame() %>% drop_na() %>% as.matrix()
 
-HeatmapGroupLabels <- plyr::mapvalues(colnames(Heatmap), from=Groups$V1, to=Groups$V2, warn_missing = FALSE)
-
-heatmap.2(Heatmap, col=colorRampPalette(c("blue", "white", "red"))(n = 299), dendrogram="column", trace="none", labRow="", key.title="PSI-Zscore", ColSideColors=HeatmapGroupLabels)
+heatmap.2(Heatmap, col=colorRampPalette(c("blue", "white", "red"))(n = 299), dendrogram="column", trace="none", labRow="", key.title="PSI-Zscore", ColSideColors=GroupLabels)
 
 #Heatmap of top leafcutter identified introns
 Heatmap <- PSI_Table[Top1000Introns,] %>%
   t() %>% scale(scale=F) %>% t() %>%
   as.data.frame() %>% drop_na() %>% as.matrix()
-heatmap.2(Heatmap, col=colorRampPalette(c("blue", "white", "red"))(n = 299), dendrogram="column", trace="none", labRow="", key.title="PSI-Zscore", ColSideColors=HeatmapGroupLabels)
+heatmap.2(Heatmap, col=colorRampPalette(c("blue", "white", "red"))(n = 299), dendrogram="column", trace="none", labRow="", key.title="PSI-Zscore", ColSideColors=GroupLabels)
 ```
 
 What's up with the near-identical samples: check correlation matrix
 
 
 ```{r}
-SRA_metadata <- read.delim(gzfile("../output/snakemake_out_sf3b1_mostlymarrow/SnaptronMetadata.SRA2.txt.gz"))
+AnnotatedIntrons <- read.table(gzfile("../data/other_snakemake_data/GencodeHg38_all_introns.bed.gz"), sep='\t', col.names = c("chrom", "start", "stop", "gene", "sysID", "strand", "transcriptID", "intronnum", "type", "other")) %>%
+  mutate(thress = case_when(
+    strand == "+" ~ paste(chrom, stop, strand),
+    strand == "-" ~ paste(chrom, start+1, strand))) %>%
+  mutate(fivess = case_when(
+    strand == "+" ~ paste(chrom, start+1, strand),
+    strand == "-" ~ paste(chrom, stop, strand)))
 
-MetadataOfSamples <- data.frame(colnames(Heatmap)) %>%
-  mutate(rail_id=as.numeric(gsub("\\.project2\\.yangili1\\.snaptron\\.processed_to_bedfiles\\..+?\\.(.+)", "\\1", colnames(Heatmap), perl=T))) %>% 
-  left_join(SRA_metadata, by="rail_id")
+PSI_Table.Extra <- PSI_Table %>% as.data.frame() %>%
+  rownames_to_column() %>%
+  mutate(junc_name = DenominatorCountTable$chrom) %>%
+  separate(junc_name, c("chrom", "start", "stop", "cluster"), sep=":") %>%
+  mutate(strand=str_sub(cluster, -1)) %>%
+  mutate(thress = case_when(
+    strand == "+" ~ paste(chrom, stop, strand),
+    strand == "-" ~ paste(chrom, start, strand))) %>%
+  mutate(fivess = case_when(
+    strand == "+" ~ paste(chrom, start, strand),
+    strand == "-" ~ paste(chrom, stop, strand)))
+  
+Crytpic3ss <- PSI_Table.Extra %>%
+  filter((fivess %in% AnnotatedIntrons$fivess) & (!thress %in% AnnotatedIntrons$thress)) %>%
+  pull(rowname)
 
-#color accoring to source (tissue of origin)
-HeatmapGroupLabels <- plyr::mapvalues(colnames(Heatmap), from=MetadataOfSamples$colnames.Heatmap., to=MetadataOfSamples$project, warn_missing = FALSE)
+Cryptic3ssQuant <- NumeratorCountTable %>%
+  mutate(junc_id = gsub(":clu_.+", "", chrom)) %>%
+  filter(junc_id %in% Crytpic3ss) %>%
+  select(-chrom, -junc_id) %>% colSums()
 
-Heatmap <- PSI_Table[Top1000Introns,] %>%
-  t() %>% scale(scale=F) %>% t() %>%
-  as.data.frame() %>% drop_na() %>% as.matrix()
-heatmap.2(Heatmap, col=colorRampPalette(c("blue", "white", "red"))(n = 299), dendrogram="column", trace="none", labRow="", key.title="PSI-Zscore", ColSideColors=HeatmapGroupLabels)
+TotalSum <- NumeratorCountTable %>% select(-chrom) %>% colSums()
+FractionCryptics3ss.df <- data.frame(TotalSum,Cryptic3ssQuant) %>%
+  rownames_to_column() %>%
+  mutate(sf3b1status = plyr::mapvalues(rowname, from=Groups$V1, to=Groups$V2, warn_missing = FALSE)) %>%
+  mutate(FractionCryptic3ss = Cryptic3ssQuant/TotalSum)
+ggplot(FractionCryptics3ss.df, aes(y=FractionCryptic3ss, x=sf3b1status)) +
+  geom_boxplot(outlier.shape=NA) + #avoid plotting outliers twice
+  geom_jitter(position=position_jitter(width=.2, height=0)) +
+  theme_bw()
 
-ggplot(MetadataOfSamples, aes(x=project, y=log10(junction_count))) +
-  geom_boxplot(outlier.shape=NA) +
-  geom_jitter(position=position_jitter(width=.5, height=0))
+wilcox.test(FractionCryptic3ss ~ sf3b1status, data=FractionCryptics3ss.df)
 
-MetadataOfSamples %>%
-  filter(junction_count!=0) %>%
-  select(rail_id)
+####
+Top1000Quant <- NumeratorCountTable %>%
+  filter(chrom %in% Top1000Introns) %>%
+  select(-chrom) %>% colSums()
 
+TotalSum <- NumeratorCountTable %>% select(-chrom) %>% colSums()
+FractionTop1000.df <- data.frame(TotalSum,Top1000Quant) %>%
+  rownames_to_column() %>%
+  mutate(sf3b1status = plyr::mapvalues(rowname, from=Groups$V1, to=Groups$V2, warn_missing = FALSE)) %>%
+  mutate(FractionCryptic3ss = Top1000Quant/TotalSum)
+ggplot(FractionTop1000.df, aes(y=FractionCryptic3ss, x=sf3b1status)) +
+  geom_boxplot(outlier.shape=NA) + #avoid plotting outliers twice
+  geom_jitter(position=position_jitter(width=.2, height=0)) +
+  theme_bw()
+
+wilcox.test(FractionCryptic3ss ~ sf3b1status, data=FractionCryptics3ss.df)
+  
 ```
 

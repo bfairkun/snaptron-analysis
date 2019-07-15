@@ -418,7 +418,7 @@ div.section {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -427,7 +427,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -436,10 +436,10 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-06-27
+<strong>Last updated:</strong> 2019-06-28
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>snaptron-analysis/analysis/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -455,12 +455,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has staged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
@@ -527,25 +527,23 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombfairkunsnaptronanalysistreec1d21574374c3c920b954f85bf9c55886ccd4c0ctargetblankc1d2157a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/bfairkun/snaptron-analysis/tree/c1d21574374c3c920b954f85bf9c55886ccd4c0c" target="_blank">c1d2157</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombfairkunsnaptronanalysistreeaf26cd0a9e9adc674576eb7e11f91ec51019fa6ftargetblankaf26cd0a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/bfairkun/snaptron-analysis/tree/af26cd0a9e9adc674576eb7e11f91ec51019fa6f" target="_blank">af26cd0</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcombfairkunsnaptronanalysistreec1d21574374c3c920b954f85bf9c55886ccd4c0ctargetblankc1d2157a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcombfairkunsnaptronanalysistreeaf26cd0a9e9adc674576eb7e11f91ec51019fa6ftargetblankaf26cd0a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    .DS_Store
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    data/.DS_Store
 
-Staged changes:
-    Modified:   analysis/20190625.ds_blood_sf3b1.Rmd
-    Modified:   analysis/20190626.MetaAnalysisAllBlood.Rmd
-    New:        analysis/20190627_DiffSplicingBloodSf3b1_GTExOnly.Rmd
-    New:        data/other_snakemake_data/MostlyMarrowContrast.groups
-    New:        data/other_snakemake_data/MostlyMarrowContrast.juncfiles
+Unstaged changes:
+    Modified:   analysis/20190627_DiffSplicingBloodSf3b1_MostlyMarrow.Rmd
 
 </code></pre>
 <p>
@@ -584,6 +582,74 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/bfairkun/snaptron-analysis/blob/6750cd615b5c408f08b67420426e689ef6a8ac7b/analysis/20190626.MetaAnalysisAllBlood.Rmd" target="_blank">6750cd6</a>
+</td>
+<td>
+Benjmain Fair
+</td>
+<td>
+2019-06-28
+</td>
+<td>
+mostly marrow pruned samples
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/bfairkun/snaptron-analysis/blob/d940fb828263b895b27cce0fa6a8c586ea31587f/analysis/20190626.MetaAnalysisAllBlood.Rmd" target="_blank">d940fb8</a>
+</td>
+<td>
+Benjmain Fair
+</td>
+<td>
+2019-06-27
+</td>
+<td>
+fixed marrow groups
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/bfairkun/snaptron-analysis/blob/c8c3ef55d9e5909f50f5d6e436675e710d3fd665/analysis/20190626.MetaAnalysisAllBlood.Rmd" target="_blank">c8c3ef5</a>
+</td>
+<td>
+Benjmain Fair
+</td>
+<td>
+2019-06-27
+</td>
+<td>
+update site
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/bfairkun/snaptron-analysis/c8c3ef55d9e5909f50f5d6e436675e710d3fd665/docs/20190626.MetaAnalysisAllBlood.html" target="_blank">c8c3ef5</a>
+</td>
+<td>
+Benjmain Fair
+</td>
+<td>
+2019-06-27
+</td>
+<td>
+update site
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -706,10 +772,47 @@ ggplot(ToPlot, aes(x=PC1, y=PC2, label=Combined.sf3b1, color=source)) +
   theme(legend.title = element_blank(), legend.text=element_text(size=6)) +
   theme_bw()</code></pre>
 <p><img src="figure/20190626.MetaAnalysisAllBlood.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-1-1">
+Past versions of unnamed-chunk-1-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/bfairkun/snaptron-analysis/blob/c8c3ef55d9e5909f50f5d6e436675e710d3fd665/docs/figure/20190626.MetaAnalysisAllBlood.Rmd/unnamed-chunk-1-1.png" target="_blank">c8c3ef5</a>
+</td>
+<td>
+Benjmain Fair
+</td>
+<td>
+2019-06-27
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Ok try to get matched wildtype and mutants from same studies and balanced for other factors</p>
 <pre class="r"><code>StudiesWithMutants &lt;- ToPlot %&gt;%
   filter(PC1&lt;=-10 &amp; PC2&lt;=-20 &amp; !is.na(study_ID)) %&gt;%
-  select(study_ID) %&gt;% distinct() %&gt;% pull()
+  select(study_ID) %&gt;% distinct() %&gt;% pull() %&gt;% length()
 
 ToPlot %&gt;% filter(study_ID %in% StudiesWithMutants) %&gt;%
 ggplot(aes(x=PC1, y=PC2, label=Combined.sf3b1)) + 
@@ -718,17 +821,56 @@ ggplot(aes(x=PC1, y=PC2, label=Combined.sf3b1)) +
   theme(legend.title = element_blank(), legend.text=element_text(size=6)) +
   theme_bw()</code></pre>
 <p><img src="figure/20190626.MetaAnalysisAllBlood.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/bfairkun/snaptron-analysis/blob/c8c3ef55d9e5909f50f5d6e436675e710d3fd665/docs/figure/20190626.MetaAnalysisAllBlood.Rmd/unnamed-chunk-2-1.png" target="_blank">c8c3ef5</a>
+</td>
+<td>
+Benjmain Fair
+</td>
+<td>
+2019-06-27
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>PoolToPickSamples &lt;- ToPlot %&gt;%
-  mutate(CovariateInfo=paste(study_ID, cell_type, tissue,   cell_line))
+  mutate(CovariateInfo=paste(study_ID, cell_type, tissue,   cell_line)) %&gt;%
+  filter(junction_coverage&gt;0)
 
 Cases &lt;- PoolToPickSamples %&gt;%
   filter(PC1&lt;=-10 &amp; PC2&lt;=-20 &amp; !is.na(study_ID)) %&gt;% 
   mutate(Status=&quot;Case&quot;) %&gt;%
+  sample_n(21) %&gt;%
   select(rail_id, CovariateInfo, Status)
 
-Controls &lt;- PoolToPickSamples %&gt;% filter(PC1&lt;=-10 &amp; PC2&lt;=-10) %&gt;%
+Controls &lt;- PoolToPickSamples %&gt;% filter(PC1&gt;=10 &amp; PC2&gt;=-10) %&gt;%
   filter(study_ID %in% StudiesWithMutants) %&gt;%
-  sample_n(95) %&gt;%
+  # sample_n(95) %&gt;%
   mutate(Status=&quot;Control&quot;) %&gt;%
   select(rail_id, CovariateInfo, Status)
 
@@ -739,6 +881,43 @@ rbind(Cases, Controls) %&gt;%
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3))</code></pre>
 <p><img src="figure/20190626.MetaAnalysisAllBlood.Rmd/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-2">
+Past versions of unnamed-chunk-2-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/bfairkun/snaptron-analysis/blob/c8c3ef55d9e5909f50f5d6e436675e710d3fd665/docs/figure/20190626.MetaAnalysisAllBlood.Rmd/unnamed-chunk-2-2.png" target="_blank">c8c3ef5</a>
+</td>
+<td>
+Benjmain Fair
+</td>
+<td>
+2019-06-27
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Write out samples for new differential splicing contrast with leafcutter (groups file, junctions file)</p>
 <pre class="r"><code>rbind(Cases, Controls) %&gt;%
   mutate(fullSampleName=paste0(&quot;.project2.yangili1.snaptron.processed_to_bedfiles.SRA2.&quot;, rail_id)) %&gt;%

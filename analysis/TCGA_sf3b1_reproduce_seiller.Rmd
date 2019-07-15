@@ -83,6 +83,25 @@ MutationList %>%
 ```
 
 
+Maybe that plot would look better if I only included recurrent mutations (n>1) to get rid of some noise.
+
+```{r}
+#Plot hotspots
+MutationList %>%
+  # filter(Cohort %in% c("LAML", "SKCM", "BRCA", "BLCA", "THYM", "UCEC", "UVM")) %>%
+  filter(Hugo_Symbol %in% c("SF3B1")) %>%
+  group_by(Protein_position) %>% add_tally() %>% ungroup() %>%
+  filter(n>1) %>%
+  ggplot(aes(as.numeric(Protein_position))) +
+  geom_histogram(aes(fill=Cohort_simplified), bins=50) +
+  scale_x_continuous(limits = c(500, 800)) +
+  xlab("Amino acid position") +
+  ylab("Count in TCGA") +
+  labs(fill='Cancer type') +
+  theme_bw()
+  # geom_density(aes(color=Cohort_simplified))
+```
+
 Ok good. Now let's plot all the samples in the same PC space based on the differentially spliced introns identified in Darman et al. Same as to what is observed in Seiller et al, I expect this PC space will distinguish SF3B1 mutant from wildtype, and the 902 hotspot will not separate in this PC space as it is a functionally distinct mutation.
 
 ```{r}
@@ -101,7 +120,22 @@ ToPlot <- PCResults.df %>%
 
 # gdc_cases.project.project_id
 ggplot(ToPlot, aes(x=PC1, y=PC2, color=CancerType, label=Mutant_aa)) +
-  geom_text(alpha=1, size=2.2) +
+  geom_text(alpha=1, size=4) +
+  geom_vline(xintercept=-5, linetype="dashed", 
+                color = "black", size=1) +
+  # geom_point(alpha=0.5) +
+  # geom_text_repel(size=2.2) +
+  theme_bw()
+
+# This plot is for a lab presentation
+ggplot(ToPlot, aes(x=PC1, y=PC2, color=CancerType, label=Mutant_aa)) +
+  geom_text(alpha=1, size=4) +
+  geom_vline(xintercept=-5, linetype="dashed", 
+                color = "black", size=1) +
+  annotate("rect", xmin = -Inf, xmax = -5, ymin = -Inf, ymax =Inf, 
+           alpha = .3, fill="blue") + 
+  annotate("rect", xmin = -5, xmax = Inf, ymin = -Inf, ymax =Inf, 
+           alpha = .3, fill="orange") + 
   # geom_point(alpha=0.5) +
   # geom_text_repel(size=2.2) +
   theme_bw()

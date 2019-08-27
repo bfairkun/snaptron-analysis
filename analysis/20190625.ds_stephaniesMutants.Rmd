@@ -1,0 +1,196 @@
+---
+title: "20190626_ds_sf3b1_blood"
+author: "Ben Fair"
+date: "6/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+```
+
+
+```{r libraries}
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(readxl)
+library(ggrepel)
+library(tidyverse)
+library(gplots)
+library(knitr)
+library("RColorBrewer")
+```
+
+
+
+```{r}
+#read-count-table
+
+Numers <- '../output/snakemake_out_sf3b1_k700e_e622d_ds/CountTableNumerators.gz'
+Denoms <- '../output/snakemake_out_sf3b1_k700e_e622d_ds/CountTableDenominators.gz'
+
+NumeratorCountTable <- fread(paste0("gunzip -c ", Numers), sep=" ", header=TRUE, data.table=FALSE)
+DenominatorCountTable <- fread(paste0("gunzip -c ", Denoms), sep=" ", header=TRUE, data.table=FALSE)
+
+PSI_Table <- NumeratorCountTable[-1]/DenominatorCountTable[-1]
+row.names(PSI_Table) <- gsub(":clu_.+", "", NumeratorCountTable$chrom)
+
+#Replace NaNs from 0/0 operation
+PSI_Table[is.na(PSI_Table)] <- 0
+
+#read-leafcutter differntial splicing results
+effect.sizes <- read.table(gzfile("../output/snakemake_out_sf3b1_k700e_e622d_ds/leafcutter.ds.effect_sizes.txt.gz"), header=T)
+
+cluster.significance <- fread(paste0("gunzip -c ", "../output/snakemake_out_sf3b1_k700e_e622d_ds/leafcutter.ds.cluster_sig.txt.gz"), sep="\t", header=TRUE, data.table=FALSE)
+
+leafcutter.merged <- effect.sizes %>%
+  mutate(cluster=gsub("(.+?:).+?:.+?:(clu.+?)", "\\1\\2", intron, perl=T)) %>%
+  mutate(junc_id=gsub("(.+?:.+?:.+?):clu.+", "\\1", intron, perl=T)) %>%
+  left_join(cluster.significance, by="cluster")
+
+kable(head(leafcutter.merged))
+```
+
+
+Ok now let's check that the leafcutter differential splicing results make sense. Some diagnositic plots:
+
+```{r}
+# how many clusters are there
+leafcutter.merged %>%
+  distinct(cluster, .keep_all = T) %>% dim()
+
+# and how many are significant (padjust<0.05, 0.01)
+leafcutter.merged %>%
+  distinct(cluster, .keep_all = T) %>% 
+  filter(p.adjust<0.1) %>% dim()
+
+#histogram of pvalues
+leafcutter.merged %>%
+  distinct(cluster, .keep_all = T) %>% 
+  ggplot(aes(x=p)) +
+    geom_histogram() +
+    theme_bw()
+```
+
+
+
+
+```{r}
+#volcano plot of cluster-pvalues and largest within-cluster-log effect size
+leafcutter.merged %>%
+  mutate(abs.logef = abs(logef)) %>%
+  group_by(cluster) %>%
+  slice(which.max(abs.logef)) %>%
+  mutate(sig=p.adjust<0.1) %>%
+  ggplot(aes(x=logef, y=-log10(p), color=sig)) +
+    geom_point() +
+    scale_x_continuous(limits=c(-10,10)) +
+    xlab("log(Effect Size)") +
+    labs(color='FDR<0.1') +
+    theme_bw()
+```
+
+Same plot but for delta-PSI instead of log-effect size...
+
+
+```{r}
+# volcano plot of cluster-pvalues and largest within-cluster-delta-psi
+leafcutter.merged %>%
+  mutate(abs.deltapsi = abs(deltapsi)) %>%
+  group_by(cluster) %>% 
+  slice(which.max(abs.deltapsi)) %>% 
+  mutate(sig=p.adjust<0.05) %>%
+  ggplot(aes(x=deltapsi, y=-log10(p), color=sig)) +
+    geom_point(alpha=0.05) +
+    theme_bw()
+```
+
+Now let's check that the junctions identified in Darman et al are enriched for small P-values
+
+
+```{r}
+DarmanJunctionsList <- read.table('../data/other_snakemake_data/DarmanDiffJunctions.LiftedToHg38.bed', header=F)
+
+# Make new id, for easier use in later filtering. Note that coordinates may need to add 1
+DarmanJunctionsList$junc_id <- paste(DarmanJunctionsList$V1, DarmanJunctionsList$V2 + 1, DarmanJunctionsList$V3 + 1, sep=":")
+
+NotInDarman<-leafcutter.merged %>% 
+  group_by(cluster) %>%
+  filter(!any(junc_id %in% DarmanJunctionsList$junc_id)) %>%
+  slice(which.min(p))
+InDarman<-leafcutter.merged %>% 
+  group_by(cluster) %>%
+  filter(any(junc_id %in% DarmanJunctionsList$junc_id)) %>%
+  slice(which.min(p))
+
+## QQ-plot of cluster P-vals, grouped by whether cluster contains in intron identified as differentially spliced in Daraman et al.
+ggplot(NotInDarman, aes(color="NotInDarman", y=-log10(sort(p)), x=-log10(1:length(p)/length(p)))) +
+  geom_point() +
+  geom_point(data=InDarman, aes(color="InDarman")) +
+  xlab("-log10(Theoretical-Pvalues)") +
+  ylab("-log10(Observed-Pvalues)") +
+  geom_abline() +
+  theme_bw() +
+  theme(legend.position="bottom") +
+  theme(legend.title=element_blank())
+```
+
+
+PCA and heatmap of differentially spliced introns
+
+```{r}
+#Get top intron within each cluster (by delta-psi) then subset the top 1000 clusters by Pval. This is the top1000 introns that will be used to plot heatmap of PSI
+Top1000Introns <- leafcutter.merged %>%
+  mutate(abs.deltapsi = abs(logef)) %>%
+  group_by(cluster) %>%
+  slice(which.max(abs.deltapsi)) %>%
+  ungroup() %>%
+  top_n(-1000, p) %>% pull(intron)
+
+Groups <- read.table("../data/other_snakemake_data/Blood_sf3b1_contrast.groups.txt")
+
+
+#First make a heatmap of Darman et al junctions
+Heatmap <- PSI_Table[DarmanJunctionsList$junc_id,] %>%
+  t() %>% scale(scale=F) %>% t() %>%
+  as.data.frame() %>% drop_na() %>% as.matrix()
+
+HeatmapGroupLabels <- plyr::mapvalues(colnames(Heatmap), from=Groups$V1, to=Groups$V2, warn_missing = FALSE)
+
+heatmap.2(Heatmap, col=colorRampPalette(c("blue", "white", "red"))(n = 299), dendrogram="column", trace="none", labRow="", key.title="PSI-Zscore", ColSideColors=HeatmapGroupLabels)
+
+#Heatmap of top leafcutter identified introns
+Heatmap <- PSI_Table[Top1000Introns,] %>%
+  t() %>% scale(scale=F) %>% t() %>%
+  as.data.frame() %>% drop_na() %>% as.matrix()
+heatmap.2(Heatmap, col=colorRampPalette(c("blue", "white", "red"))(n = 299), dendrogram="column", trace="none", labRow="", key.title="PSI-Zscore", ColSideColors=HeatmapGroupLabels)
+```
+
+Ok it seems the leafcutter identified introns don't segregate the samples cleanly into two sf3b1-related clusters (sf3b1-mut and sf3b1-wt) in the way that the Darman identified junctions do... This could be due to uncontrolled for confounders (study, tissue, batch, etc).
+
+To test that hypothesis, I'll try making the heatmap again, coloring the column labels by the study origin or tissue origin:
+
+```{r}
+SRA_metadata <- read.delim(gzfile("../output/snakemake_out_sf3b1_blood_ds/SnaptronMetadata.SRA2.txt.gz"))
+
+MetadataOfSamples <- data.frame(colnames(Heatmap)) %>%
+  mutate(rail_id=as.numeric(gsub("\\.project2\\.yangili1\\.snaptron\\.processed_to_bedfiles\\..+?\\.(.+)", "\\1", colnames(Heatmap), perl=T))) %>% 
+  left_join(SRA_metadata, by="rail_id")
+
+
+#color accoring to source (tissue of origin)
+HeatmapGroupLabels <- plyr::mapvalues(colnames(Heatmap), from=MetadataOfSamples$colnames.Heatmap., to=MetadataOfSamples$source_name, warn_missing = FALSE)
+
+Heatmap <- PSI_Table[Top1000Introns,] %>%
+  t() %>% scale(scale=F) %>% t() %>%
+  as.data.frame() %>% drop_na() %>% as.matrix()
+heatmap.2(Heatmap, col=colorRampPalette(c("blue", "white", "red"))(n = 299), dendrogram="column", trace="none", labRow="", key.title="PSI-Zscore", ColSideColors=HeatmapGroupLabels)
+```
+
+There is clearly some unaccounted for covariates that are driving part of the clustering. As a starting point, I should redo the differential splicing with a well-controlled set of samples from the same study.
+
+First I will look at PC space based on these set of junctions, and see if perhaps sf3b1mut-wt separates in any of the top PCs. Additionally, another exersize to do is to look within a single tissue type at the same set of junctions identified by this meta-tissue analysis.
+
+

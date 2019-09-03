@@ -64,7 +64,7 @@ To subset the leafcutter effect_sizes table for junctions that 1) fall within 3'
 effect_sizes <- read.delim('../output/snakemake_out_sf3b1_mutWT_k700e_ds/leafcutter.ds.effect_sizes.txt.gz', header=T) %>%
 separate("intron", c("chrom", "chromEnd", "chromStart", "cluster"), ":") %>%
   mutate(chr_clust= paste(chrom, cluster, sep = ":", collapse = NULL)) %>% 
-  mutate(strand= str_sub(effect_sizes$cluster, start= -1)) %>%
+  mutate(strand= str_sub(cluster, start= -1)) %>%
   mutate(name= ".") %>%
   mutate(score= ".")
 

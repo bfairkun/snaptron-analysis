@@ -25,3 +25,13 @@ From this list of samples, I saw separation in PC-space between known sf3b1-mut 
 - That analysis [here](20190625.ds_blood_sf3b1.html)
 
 I will use these differentially spliced junctions (in particular alternative, upstream 3'ss that are upregulated in sf3b1-mut) to design MPE-seq primers.
+
+
+[20190625.ds_stephaniesMutants.html](20190625.ds_stephaniesMutants.html)
+[20190715_PCA_ShanesTargetsOnSnaptronData.html](20190715_PCA_ShanesTargetsOnSnaptronData.html)
+[20190715_sf3b1_k700e_e622d_ds.html](20190715_sf3b1_k700e_e622d_ds.html)
+[20190719_sf3b1_nalm6_k700e_wt_ds.html](20190719_sf3b1_nalm6_k700e_wt_ds.html)
+[20190723_sf3b1_e622d_wt_ds.html](20190723_sf3b1_e622d_wt_ds.html)
+[20190723_sf3b1_k700e_wt_ds.html](20190723_sf3b1_k700e_wt_ds.html)
+[20190726_sf3b1_mutWT_e622d_ds.html](20190726_sf3b1_mutWT_e622d_ds.html)
+[20190726_sf3b1_mutWT_k700e_ds.html](20190726_sf3b1_mutWT_k700e_ds.html)

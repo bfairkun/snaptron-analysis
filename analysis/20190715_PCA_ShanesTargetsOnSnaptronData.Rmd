@@ -40,7 +40,7 @@ Denoms <- '../output/snakemake_out_sf3b1_blood_DarmanJuncs/CountTableDenominator
 NumeratorCountTable <- fread(paste0("gunzip -c ", Numers), sep=" ", header=TRUE, data.table=FALSE)
 DenominatorCountTable <- fread(paste0("gunzip -c ", Denoms), sep=" ", header=TRUE, data.table=FALSE)
 
-dim <- NumeratorCountTable[-1]/DenominatorCountTable[-1]
+PSI_Table <- NumeratorCountTable[-1]/DenominatorCountTable[-1]
 row.names(PSI_Table) <- gsub(":clu_.+", "", NumeratorCountTable$chrom)
 colnames(PSI_Table) <- gsub(".+\\.(.+$)", "\\1", colnames(PSI_Table), perl=T)
 
